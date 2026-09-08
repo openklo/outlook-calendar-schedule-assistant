@@ -1,51 +1,49 @@
-# calendar-overview — first-time setup
+# calendar-overview — first-time setup (setup wizard)
 
-This plugin reuses the **bundled** `scripts/msgraph_auth.py` auth core
-(drift-guarded, byte-identical to morning-digest / `~/.hermes/scripts`).
-Calendar read (`Calendars.Read`) is **already a delegated scope for the
-morning-digest app — no new app registration needed**: the same Entra
-application + the same delegated scope set (which includes `Calendars.Read`)
-serves this plugin. Just point this plugin at that same `MSFT_CLIENT_ID`.
+Two tools are ready as soon as one delegated sign-in completes:
+`fetch_calendar_overview` (multi-day schedule overview) and `find_free_slot`
+(nearest free slot, +-30 min transport padding for physical meetings).
+Auth is delegated Microsoft Graph (Authorization Code + PKCE) over the **bundled**
+`scripts/msgraph_auth.py` core. Calendar read uses the `Calendars.Read` scope your
+existing work/school Entra app already grants — **no new app registration needed**:
+this plugin reuses the same `MSFT_CLIENT_ID` as your current Graph plugin.
 
-## Step 1 — set `MSFT_CLIENT_ID`
+## The 4-step wizard
 
-Add the application (client) ID of your existing Microsoft Entra app to your
-`.env` (template at `.env.example`):
+    hermes calendar-setup status      # 1. see what is set vs missing
+    hermes calendar-setup login       # 2. prints the authorize URL — open it, sign in
+    hermes calendar-setup consume    # 3. exchange the callback URL for tokens
+          --url "http://127.0.0.1:8765/callback?code=..."
+    hermes calendar-setup verify      # 4. live round-trip over 1 day of calendar
 
-    MSFT_CLIENT_ID=<your-client-id>
+`status` output contract (never prints secret values):
+    {"client_id_set": bool, "token_present": bool, "ready": bool, "next_step": str|null}
 
-If it is missing you'll be told in two places:
-- **At install**, `hermes plugins install` prompts for it (`requires_env` in `plugin.yaml`).
-- **At runtime**, the next `fetch_calendar_overview` / `find_free_slot` with no
-  client id reports the exact two-step fix and the setup location (the `needs_auth`
-  contract).
+## Step-by-step (manual equivalent, if you prefer plain commands)
 
-## Step 2 — the 2-step delegated login
+1. **Set `MSFT_CLIENT_ID`** (Application/client ID of your existing Entra app)
+   in your profile `.env` (`~/.hermes/.env`; template: `.env.example`).
+   If missing, `hermes plugins install` prompts for it and `status` points you here.
+2. **Login:** `python3 scripts/msgraph_auth.py login` — open the printed URL,
+   sign in to your work/school account. The browser lands on a "can't reach this
+   page" URL — that is expected (loopback).
+3. **Consume:** paste that FULL callback URL back:
+   `python3 scripts/msgraph_auth.py consume "http://127.0.0.1:8765/callback?code=..."`
+   Tokens are stored in the profile `.env` — `MSFT_ACCESS_TOKEN` /
+   `MSFT_REFRESH_TOKEN` are per-user secrets and must never be committed.
+   `MSFT_CLIENT_ID` is a public identifier and is safe in `.env.example`.
+4. **Verify:** `python3 scripts/calendar_overview.py --days-ahead 1`
+   (or `hermes calendar-setup verify`) → JSON with `event_count` = working.
 
-Auth is delegated (per-user) against the `organizations` authority via
-**Authorization Code + PKCE (S256)** — no client secret. Run the bundled core in
-two steps:
+## If a tool returns the `needs_auth` contract instead of data
 
-     1) python3 ~/.hermes/plugins/calendar-overview/scripts/msgraph_auth.py login
-        -> prints the authorize URL. Open it in your browser and sign in to your
-           work/school account.
-     2) copy the full URL your browser lands on (the unreachability page) and:
-        python3 ~/.hermes/plugins/calendar-overview/scripts/msgraph_auth.py consume "<PASTED_URL>"
-        -> exchanges the code, stores the access/refresh tokens in the profile .env.
+That is the plugin telling you step 2–3 are incomplete. Run:
+    hermes calendar-setup login
+    hermes calendar-setup consume --url "<FULL_CALLBACK_URL>"
+then retry the tool call. No calendar data is mutated; this plugin only READS.
 
-`login`/`consume` write `MSFT_ACCESS_TOKEN` / `MSFT_REFRESH_TOKEN` /
-`MSFT_TOKEN_EXPIRES_AT` into your `.env` — **do not commit those real values.**
-`MSFT_CLIENT_ID` is a public identifier and is safe in `.env.example`.
+## Optional overrides (only if you know why)
 
-## Onboarding summary
-
-    MSFT_CLIENT_ID (already exists from morning-digest; no new app registration)
-      -> scripts/msgraph_auth.py login  -> open URL, sign in
-      -> paste the callback URL
-      -> scripts/msgraph_auth.py consume "<PASTED_URL>"
-      -> first `fetch_calendar_overview` / `find_free_slot` works.
-
-Full Entra registration walkthrough (only needed if you register a brand-new app):
-see `docs/entra-registration-guide.md`, which points at the morning-digest guide.
-No `MSFT_GRAPH_SECRET`, `MSFT_TENANT_ID`, `MSFT_AUTHORITY`, or `MSFT_UPN` are
-required — they are optional overrides.
+`MSFT_AUTHORITY` (default `organizations`), `MSFT_REDIRECT_URI` (default loopback),
+`MSFT_UPN` (used for @me detection). Full registration walkthrough for a
+brand-new app: `docs/entra-registration-guide.md`.
