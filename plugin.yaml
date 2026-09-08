@@ -1,0 +1,10 @@
+name: calendar-overview
+version: "0.1.0"
+description: "Multi-day calendar overview (today + N days) with transport flagging and local memory-search pointers, plus on-demand free-slot finder with ±30min transport padding for physical meetings. Delegated Microsoft Graph (PKCE, multi-tenant work/school accounts; Calendars.Read)."
+requires_env:
+   - name: MSFT_CLIENT_ID
+     description: "Azure app client ID for delegated Microsoft Graph sign-in (REQUIRED). See after-install.md / docs/entra-registration guide."
+provides_tools:
+   - fetch_calendar_overview
+   - find_free_slot
+provides_hooks: []
