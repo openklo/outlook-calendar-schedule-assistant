@@ -182,9 +182,10 @@ Distributed as a Git repository: `git@github.com:openklo/outlook-calendar-schedu
 
 **Option A — let Hermes install from the remote** (recommended):
 
-    hermes plugins install openklo/outlook-calendar-schedule-assistant --no-enable
+    hermes plugins install git@github.com:openklo/outlook-calendar-schedule-assistant.git --no-enable
+    hermes plugins install openklo/outlook-calendar-schedule-assistant --no-enable    # shorthand: the public-repo form (works now that the repo is public; previously failed when private — use the SSH URL above for deploy-key/private set-ups)
     hermes plugins enable calendar-overview --no-allow-tool-override
-    hermes calendar-setup status         # then follow the rendered checklist
+    hermes calendar-setup status          # then follow the rendered checklist
 
 **Option B — clone + mirror locally** (offline, or per-profile; same consumer
 pattern as the morning-digest dist repo at `~/code/hermes-morning-digest`):
