@@ -175,3 +175,27 @@ the `needs_auth` JSON contract (see "Auth" above) instead of failing:
 run STEP 1, then retry the same call. Pre-login the scripts exit 3
 (`NotAuthenticatedError`); via the tool handlers that surfaces as the
 `needs_auth` payload.
+
+## Install from scratch (new machine)
+
+Distributed as a Git repository: `git@github.com:openklo/outlook-calendar-schedule-assistant.git`.
+
+**Option A — let Hermes install from the remote** (recommended):
+
+    hermes plugins install openklo/outlook-calendar-schedule-assistant --no-enable
+    hermes plugins enable calendar-overview --no-allow-tool-override
+    hermes calendar-setup status         # then follow the rendered checklist
+
+**Option B — clone + mirror locally** (offline, or per-profile; same consumer
+pattern as the morning-digest dist repo at `~/code/hermes-morning-digest`):
+
+    git clone git@github.com:openklo/outlook-calendar-schedule-assistant ~/code/hermes-calendar-overview
+    bash ~/code/hermes-calendar-overview/scripts/update-locally.sh default
+
+After either install, the setup wizard (or the rendered `after-install.md`
+checklist) walks you through the one delegated sign-in:
+
+    hermes calendar-setup status                     # what is set, what is missing
+    hermes calendar-setup login                      # prints the authorize URL
+    hermes calendar-setup consume --url "http://127.0.0.1:8765/callback?code=..."
+    hermes calendar-setup verify                     # live 1-day round-trip

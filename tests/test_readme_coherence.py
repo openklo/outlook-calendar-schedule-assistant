@@ -25,6 +25,11 @@ REQUIRED = {
     "MSFT_CLIENT_ID": "the only required env",
     "09:00": "find_free_slot work-hours window",
     "transport buffer": "D1 +-30min physical buffer",
+    "openklo/outlook-calendar-schedule-assistant": "the dist git remote",
+    "hermes plugins install": "the install-from-remote route",
+    "hermes calendar-setup status": "the setup-wizard CLI entrypoint",
+    "update-locally.sh": "the dist->live mirror consumer",
+    "git clone": "the manual clone+mirror install route",
 }
 
 def main():
