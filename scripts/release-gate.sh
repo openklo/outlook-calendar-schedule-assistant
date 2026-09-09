@@ -10,7 +10,7 @@
 # Checks:
 #    1. Dist repo tag <VERSION> exists (WARN-skip if no dist repo yet -- Task 4.8)
 #    2. plugin.yaml version == strip-v prefix of <VERSION>
-#    3. verify-auth.sh passes (all THREE msgraph_auth copies in sync)
+#    3. verify-auth.sh passes (co's OWNED msgraph_auth.py core: compile + selftest)
 #    4. Live regression suite passes OR degrades to WARN "needs token" pre-login
 #       (mirrors morning-digest's "optional/located" pattern -- live check must not
 #       FALSE-FAIL when the delegated token is absent)
@@ -102,15 +102,15 @@ else
     RC=1
 fi
 
-# Check 6: no hard-coded FOREIGN / TWIN paths in instruction files.
-# The co plugin's own bundled msgraph_auth.py path is legitimate; what must not
-# leak is a foreign plugin path (morning-digest) or the global twin
-# ($HOME/.hermes/scripts/msgraph_auth -- the calendar project's copy).
-BAD=$(grep -rEl "\$HOME/\.hermes/plugins/morning-digest|\$HOME/\.hermes/scripts/msgraph_auth" \
-     "$PLUGIN_DIR/README.md" \
-     "$PLUGIN_DIR/after-install.md" \
-     "$PLUGIN_DIR/docs/" \
-     2>/dev/null | head -3)
+# Check 6: no hard-coded FOREIGN plugin paths in instruction files.
+# co is decoupled and self-contained: it OWNS its own scripts/msgraph_auth.py (no
+# global twin). What must still not leak is a foreign plugin path
+# ($HOME/.hermes/plugins/morning-digest -- co must stay independent of md).
+BAD=$(grep -rEl "\$HOME/\.hermes/plugins/morning-digest" \
+      "$PLUGIN_DIR/README.md" \
+      "$PLUGIN_DIR/after-install.md" \
+      "$PLUGIN_DIR/docs/" \
+      2>/dev/null | head -3)
 if [ -z "$BAD" ]; then
     say PASS "no hard-coded foreign-plugin or twin msgraph_auth paths in instruction files"
 else

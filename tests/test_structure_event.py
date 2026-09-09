@@ -1,6 +1,6 @@
 # tests/test_structure_event.py
 import sys, pathlib, tempfile, os, json
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))  # co source, not deployed mirror
 import calendar_overview as c
 with tempfile.TemporaryDirectory() as td:
     os.environ["OBSIDIAN_VAULT_PATH"] = td

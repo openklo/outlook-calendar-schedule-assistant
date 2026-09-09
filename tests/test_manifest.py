@@ -1,5 +1,5 @@
 import yaml, pathlib, sys
-p = pathlib.Path.home() / ".hermes/plugins/calendar-overview/plugin.yaml"
+p = pathlib.Path(__file__).resolve().parents[1] / "plugin.yaml"   # co source
 assert p.exists(), "plugin.yaml missing"
 d = yaml.safe_load(open(p))
 assert d["name"] == "calendar-overview", d.get("name")

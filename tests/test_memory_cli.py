@@ -1,6 +1,6 @@
 # tests/test_memory_cli.py
 import subprocess, pathlib, json, os
-P = pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts/memory_search.py"
+P = pathlib.Path(__file__).resolve().parents[1]/"scripts"/"memory_search.py"  # co source
 ev = json.dumps({"subject":"Q3 Budget Review",
                   "body_text":"Agenda + @me bring numbers",
                   "context_summary":{"has_agenda":True,"action_items":["review x"]}})

@@ -1,6 +1,6 @@
 # tests/test_context.py
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))  # co source, not deployed mirror
 import calendar_overview as c
 # html_to_text: strips tags, keeps text; assert the 'Agenda' label surfaces
 out = c.html_to_text("<b>Agenda</b><p>Review budget</p>")

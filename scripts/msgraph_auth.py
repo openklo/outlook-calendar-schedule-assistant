@@ -538,10 +538,10 @@ if __name__ == "__main__":
         print(str(e), file=sys.stderr); sys.exit(3)
     except RuntimeError as e:
         print(f"ERROR: {e}", file=sys.stderr); sys.exit(4)
-# ── CONSOLIDATION NOTE (2026-09-06 calendar-overview) ────────────────────
-# This copy is the OWNED shipped auth core for the calendar-overview plugin.
-# The source region (above this marker) is kept BYTE-IDENTICAL to the
-# morning-digest copy and the standalone ~/.hermes/scripts copy; the three
-# are diffed by scripts/verify-auth.sh (stripping this note first). Do NOT
-# edit the source region here without editing the other two copies.
+# ── OWNED AUTH CORE (2026-09-09 decoupled) ────────────────────────────────
+# This copy is the OWNED, STANDALONE shipped auth core for the calendar-overview
+# plugin. calendar-overview is fully decoupled from morning-digest and from any
+# global ~/.hermes/scripts twin: co ships and owns its OWN scripts/msgraph_auth.py.
+# scripts/verify-auth.sh guards THIS copy only (byte-compile + embedded selftest);
+# no cross-plugin or global-twin copies are diffed. This note is informational only.
 # ────────────────────────────────────────────────────────────

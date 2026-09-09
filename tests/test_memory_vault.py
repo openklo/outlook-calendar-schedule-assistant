@@ -1,6 +1,6 @@
 # tests/test_memory_vault.py
 import sys, pathlib, tempfile, os
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))   # co source, not deployed mirror
 import memory_search as m
 with tempfile.TemporaryDirectory() as td:
     v = pathlib.Path(td)/"v"; v.mkdir(); (v/"a.md").write_text("Q3 budget renewal plan")

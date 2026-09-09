@@ -58,10 +58,11 @@ block:
 ## Auth: needs_auth contract
 
 Delegated OAuth 2.0 Authorization Code + PKCE (S256) against the
-`organizations` authority via the **bundled** `scripts/msgraph_auth.py`
-(drift-guarded, byte-identical to morning-digest / `~/.hermes/scripts`).
-Calendar read uses the `Calendars.Read` delegated scope, which is already
-granted to the morning-digest app - no new app registration needed.
+`organizations` authority via the **bundled, co-owned** `scripts/msgraph_auth.py`
+(co ships and owns its own auth core: self-contained, no cross-plugin / global-twin
+copies — guarded by `scripts/verify-auth.sh`). Calendar read uses the
+`Calendars.Read` delegated scope, which is already granted to the shared
+`Calendars.Read` Entra app - no new app registration needed.
 
 The only required env var is `MSFT_CLIENT_ID` (set in `~/.hermes/.env`;
 template at `.env.example`). If auth is missing, a tool call returns the

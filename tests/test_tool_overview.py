@@ -1,12 +1,12 @@
 # tests/test_tool_overview.py
 import sys, pathlib
-P=pathlib.Path.home()/".hermes/plugins/calendar-overview"
-P= (P/"scripts")
+ROOT = pathlib.Path(__file__).resolve().parents[1]   # co source
+P=ROOT/"scripts"
 # import tools without running main
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview"))
+sys.path.insert(0, str(ROOT))
 import importlib.util, json
 spec=importlib.util.spec_from_file_location("tools",
-    str(pathlib.Path.home()/".hermes/plugins/calendar-overview/tools.py"))
+    str(ROOT/"tools.py"))
 tools=importlib.util.module_from_spec(spec); spec.loader.exec_module(tools)
 # patch subprocess to return canned overview JSON (no network)
 import subprocess

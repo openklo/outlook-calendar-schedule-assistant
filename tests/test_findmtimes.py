@@ -1,6 +1,6 @@
 # tests/test_findmtimes.py
 import sys, pathlib, json
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))  # co source, not deployed mirror
 import calendar_availability as av
 # Feed a canned findMeetingTimes-like response and assert the first suggestion is chosen
 resp = {"attendeesAvailability":[{"availability":"BUSY",

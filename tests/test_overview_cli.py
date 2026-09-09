@@ -1,6 +1,6 @@
 # tests/test_overview_cli.py
 import sys, pathlib, json, io, contextlib
-P = pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"
+P = pathlib.Path(__file__).resolve().parents[1]/"scripts"   # co source, not deployed mirror
 sys.path.insert(0, str(P))
 import calendar_overview as c
 def fake(endpoint, params=None):

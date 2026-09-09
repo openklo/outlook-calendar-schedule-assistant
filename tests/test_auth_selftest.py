@@ -1,11 +1,12 @@
-# tests/test_auth_selftest.py -- regression gate: bundled msgraph_auth.py
-# selftest must print its 5 SELFTEST-OK lines and the 3-copy verify-auth.sh
-# drift guard must report "in sync". No token / no network (selftest is pure).
+# tests/test_auth_selftest.py -- regression gate: co's BUNDLED, OWNED msgraph_auth.py.
+# co is decoupled: it owns its auth core. The selftest prints its 5 SELFTEST-OK lines
+# and co's co-only verify-auth.sh guard reports "in sync". No token / no network (pure).
+# Paths root at the co SOURCE repo (this file's grandparent), never a deployed mirror.
 import subprocess, pathlib, sys
 
-H = pathlib.Path.home()
-SCRIPT = H / ".hermes/plugins/calendar-overview/scripts/msgraph_auth.py"
-VA = H / ".hermes/plugins/calendar-overview/scripts/verify-auth.sh"
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "scripts" / "msgraph_auth.py"
+VA = ROOT / "scripts" / "verify-auth.sh"
 
 assert SCRIPT.exists(), "msgraph_auth.py missing"
 assert VA.exists(), "verify-auth.sh missing"

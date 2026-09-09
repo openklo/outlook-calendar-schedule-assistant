@@ -1,6 +1,6 @@
 # tests/test_build_busy.py
 import sys, pathlib, datetime as dt
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))  # co source, not deployed mirror
 import calendar_availability as av
 tz = dt.timezone.utc
 evs = [

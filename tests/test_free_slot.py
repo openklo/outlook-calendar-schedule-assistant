@@ -1,6 +1,6 @@
 # tests/test_free_slot.py
 import sys, pathlib, datetime as dt
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))  # co source, not deployed mirror
 import calendar_availability as av
 day = dt.date(2026,9,6)
 def at(h,m=0): return dt.datetime(2026,9,6,h,m,tzinfo=dt.timezone.utc)

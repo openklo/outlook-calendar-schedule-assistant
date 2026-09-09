@@ -1,6 +1,6 @@
 # tests/test_fetch_window.py
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path.home()/".hermes/plugins/calendar-overview/scripts"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))  # co source, not deployed mirror
 import calendar_overview as c
 calls = []
 def fake_get(endpoint, params=None):
