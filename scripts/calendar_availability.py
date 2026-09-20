@@ -2,9 +2,10 @@
 """calendar_availability.py - nearest free slot finder with transport buffering.
     Pure core (find_free_slot) over busy intervals + a thin Graph layer
     (findMeetingTimes/calendarView). Stdlib + curl only. Local tz via zoneinfo."""
-import sys, os, json, argparse, datetime, subprocess, zoneinfo, urllib.parse
+import sys, os, json, argparse, datetime, subprocess, urllib.parse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import msgraph_auth
+import tz_util                  # shared tz resolution (DRY; also used by calendar_overview)
 
 
 def find_free_slot(busy, dur_min, transport, now, horizon_days=7,
@@ -60,15 +61,6 @@ def _advance_past(busy, hi, buf, tz):
             nxt = e + datetime.timedelta(minutes=buf)
     return nxt
 
-
-def _local_tz():
-    name = os.environ.get("TZ") or "UTC"
-    try:
-        return zoneinfo.ZoneInfo(name)
-    except Exception:
-        return None
-
-
 def build_busy(events, tz, work_start=(9, 0), work_end=(18, 0)):
     """Turn structured events into a sorted list of aware (start,end) busy
      intervals. All-day events block the full work day [work_start,work_end]."""
@@ -91,17 +83,9 @@ def build_busy(events, tz, work_start=(9, 0), work_end=(18, 0)):
     return out
 
 
-def _parse_dt(s):
-    if not s:
-        return None
-    s = s.replace("Z", "+00:00")
-    try:
-        d = datetime.datetime.fromisoformat(s)
-    except ValueError:
-        return None
-    if d.tzinfo is None:
-        d = d.replace(tzinfo=datetime.timezone.utc)
-    return d.astimezone(_local_tz() or datetime.timezone.utc)
+def _parse_dt(s, local_tz=None):
+    d, _iana = tz_util.parse_local_dt(s, local_tz=local_tz)
+    return d
 
 
 def _post_findmtimes(payload, token):
@@ -119,7 +103,7 @@ def find_slot_now(duration_min=60, meeting_type="virtual", start_date=None,
                   horizon_days=7, work_start=(9, 0), work_end=(18, 0),
                   buffer_min=30):
     start = start_date or datetime.date.today().isoformat()
-    s = datetime.datetime.fromisoformat(start + "T00:00:00").astimezone(_local_tz() or datetime.timezone.utc)
+    s = datetime.datetime.fromisoformat(start + "T00:00:00").astimezone(tz_util._local_tz() or datetime.timezone.utc)
     # build busy from the 7-day window via findMeetingTimes (delegated token)
     tok = msgraph_auth.get_access_token()
     end = s + datetime.timedelta(days=horizon_days)

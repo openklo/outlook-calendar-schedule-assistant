@@ -177,6 +177,43 @@ run STEP 1, then retry the same call. Pre-login the scripts exit 3
 (`NotAuthenticatedError`); via the tool handlers that surfaces as the
 `needs_auth` payload.
 
+## Update a deployed copy (after a release)
+
+The plugin lives in a per-profile `plugins/` dir, tracked by
+`~/.hermes/<profile>/plugins/.install-metadata.json` with a `pinned` flag.
+When `pinned: false` (the default for any install via `--ref` or
+`install --force`), the following in-place `git pull` is safe; the
+per-profile `.env` (your secrets — `MSFT_CLIENT_ID` / `MSFT_ACCESS_TOKEN` /
+`MSFT_REFRESH_TOKEN` / `MSFT_TOKEN_EXPIRES_AT`) is preserved by the updater.
+
+**Per-profile (most common — `hermes -p <name>`):**
+
+    hermes -p <profile> plugins update calendar-overview
+
+Example — update the copies in `infotiles-outlook` and `t2c-outlook`:
+
+    hermes -p infotiles-outlook  plugins update calendar-overview
+    hermes -p t2c-outlook        plugins update calendar-overview
+
+The updater reads `plugins/.install-metadata.json` to find
+`source: git@github.com:openklo/outlook-calendar-schedule-assistant.git`
+(SSH) or `https://github.com/openklo/…` (HTTPS) and runs `git pull` in the
+profile's own copy. It refuses a `pinned: true` copy (use
+`--force` to un-pin via reinstall instead).
+
+**Default (current) profile — `~/.hermes/plugins/calendar-overview/`:**
+
+    hermes plugins update calendar-overview
+
+**Option B (local dist mirror, offline or per-profile batch — `update-locally.sh`):**
+
+    git -C ~/code/hermes-calendar-overview pull --ff-only
+    bash ~/code/hermes-calendar-overview/scripts/update-locally.sh <profile-name>
+
+Note: `release-gate.sh` check 1 is a WARN (not a failure) until a dist-repo
+tag `v{VERSION}` exists in `~/code/hermes-calendar-overview`. The 3-copy
+`verify-auth.sh` sync is checked unconditionally.
+
 ## Install from scratch (new machine)
 
 Distributed as a Git repository: `git@github.com:openklo/outlook-calendar-schedule-assistant.git`.

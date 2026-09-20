@@ -7,7 +7,8 @@ classification (confirmed heuristic, owner 2026-09-06).
 import sys, os, re, json, urllib.parse, datetime, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import msgraph_auth
-import memory_search as _mem    # Phase 1
+import memory_search as _mem     # Phase 1
+import tz_util                   # shared tz resolution (DRY, also used by calendar_availability)
 
 _URL_RE    = re.compile(r"https?://", re.I)
 _PROVIDER_RE = re.compile(r"zoom|teams?|meet|gcal|google meet|webex|skype", re.I)
@@ -56,15 +57,20 @@ def _structure_event(ev: dict, *, self_email: str = "") -> dict:
     s=ev.get("start") or {}; e=ev.get("end") or {}
     loc = (ev.get("location") or {}).get("displayName","")
     mt, rt = _classify_meeting(ev)
+    # Resolve Graph's raw dateTime/timeZone to the consumer's LOCAL zone
+    # (TZ env → zoneinfo). Returns (local_wall_iso, local_iana_name). Empty
+    # input → ("", <iana>) so schema keys stay present. DRY via tz_util.
+    start_iso, start_iana = tz_util._resolve_dt(s.get("dateTime",""), s.get("timeZone",""))
+    end_iso, end_iana     = tz_util._resolve_dt(e.get("dateTime",""), e.get("timeZone",""))
     body_html = (ev.get("body") or {}).get("content","")
     body_text = html_to_text(body_html)
     if len(body_text) > 2000:
         body_text = body_text[:1997] + "\n\n...[truncated]"
     out = {
-        "id": ev.get("id",""),
-        "subject": ev.get("subject","") or "(no subject)",
-        "start_dt": s.get("dateTime",""), "start_tz": s.get("timeZone",""),
-        "end_dt": e.get("dateTime",""), "end_tz": e.get("timeZone",""),
+         "id": ev.get("id",""),
+         "subject": ev.get("subject","") or "(no subject)",
+         "start_dt": start_iso, "start_tz": start_iana,
+         "end_dt": end_iso, "end_tz": end_iana,
         "is_all_day": bool(ev.get("isAllDay",False)),
         "location": loc,
         "meeting_type": mt, "requires_transport": rt,
